@@ -53,6 +53,8 @@ class GUI(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        instr = "Type URLs here. e.g. www.google.com/search?q=%s"
+
         self.searchDropdown = QComboBox(self)
         self.searchBox = QLineEdit(self)
         self.searchBox.setPlaceholderText("Search terms")
@@ -76,7 +78,8 @@ class GUI(QMainWindow):
         self.deleteCatButton = QPushButton("Delete", self)
         self.deleteCatButton.clicked.connect(self.deleteCatClicked)
         self.urlBox = QPlainTextEdit(self)
-        self.urlBox.setPlaceholderText("URLs go here")
+        self.urlBox.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.urlBox.setPlaceholderText(instr)
         self.addNewRadio.setChecked(True)
         self.addNewChecked()
 
@@ -118,13 +121,27 @@ class GUI(QMainWindow):
         exitAction.setStatusTip("Exit MultiSearch")
         exitAction.triggered.connect(qApp.quit)
 
+        helpAction = QAction("&Help", self)
+        helpAction.setShortcut("F1")
+        helpAction.setStatusTip("Show Help")
+        helpAction.triggered.connect(self.showHelp)
+
         menubar = self.menuBar()
         fileMenu = menubar.addMenu("&File")
+        helpMenu = menubar.addMenu("&Help")
         fileMenu.addAction(exitAction)
+        helpMenu.addAction(helpAction)
 
-        self.setGeometry(300, 300, 300, 425)
+        self.setGeometry(300, 300, 325, 425)
         self.setWindowTitle('MultiSearch')
         self.show()
+
+    def showHelp(self):
+        QMessageBox.information(self, "Instructions", "Categories must be created " \
+            "before you can search.\nA category is a collection of URLs.\n" \
+            "URLs should be placed on separate lines.\nURLs should contain \"%s\" " \
+            "where the search terms will be substituted.\n" \
+            "E.g. https://www.google.com/search?q=%s")
 
     def addRadioToggled(self, checked):
         if checked:
@@ -255,12 +272,11 @@ class GUI(QMainWindow):
         if type == "save_error":
             QMessageBox.warning(self, "File Error", "There was an error while "\
                 "saving or creating the file.\nMultiSearch will now exit.")
-            qApp.exit(1)
         elif type == "json_error":
             QMessageBox.warning(self, "File Error", "There was an error reading "\
-                "JSON from file. If the file was edited manually, ensure proper "\
-                "syntax is used.\nMultiSearch will now exit.")
-            qApp.exit(1)
+                "JSON from file.\nIf the file was edited manually, ensure proper "\
+                "syntax is used.\nExit Multisearch and correct or delete the file.")
+        qApp.exit(1)
 
 if __name__ == '__main__':
     main()
